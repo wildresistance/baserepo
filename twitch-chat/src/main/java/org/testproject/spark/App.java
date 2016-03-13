@@ -11,6 +11,7 @@ import org.testproject.spark.receiver.TwitchReceiver;
 import scala.Tuple2;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.testproject.spark.twitch.util.TwitchApiHelper.getChannelsByTopTenStreams;
@@ -32,12 +33,12 @@ public class App {
         List<String> emoticonList = getEmoticonList();
         List<String> topChannelLists = getChannelsByTopTenStreams();
 
-        SparkConf sparkConf = new SparkConf().setAppName("twitch-chat");
+        SparkConf sparkConf = new SparkConf().setAppName("twitch-chat").setMaster("local[2]");
 
         JavaStreamingContext jsc = new JavaStreamingContext(sparkConf, Durations.seconds(2));
         jsc.checkpoint(".");
         JavaReceiverInputDStream<String> lines = jsc.receiverStream(new TwitchReceiver(twitchHost, twitchPort, topChannelLists));
-        JavaDStream<String> wLines = lines.window(Durations.minutes(5), Durations.minutes(5));
+        JavaDStream<String> wLines = lines.window(Durations.minutes(5), Durations.minutes(1));
 
         List<Tuple2<String, Long>> tupleList = new ArrayList<>();
         JavaPairRDD<String, Long> initial = jsc.sparkContext().parallelizePairs(tupleList);
@@ -64,6 +65,7 @@ public class App {
 
     private static void printResult(JavaPairDStream<Long, String> stream, int topCount, String headerMessage) {
         stream.foreachRDD((streamRdd, time)->{
+            System.out.println(new Date(time.milliseconds()));
             System.out.println(headerMessage);
             streamRdd.take(topCount).stream().forEach((pair)-> System.out.println(String.format("%s (%s occurences)", pair._2(), pair._1())));
         });
