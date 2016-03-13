@@ -8,7 +8,7 @@ Application processes chat messages and extract the following information:
 
 # How to run the application
 
-<apache spark bin directory>$ ./spark-submit --class org.testproject.spark.App 
+** $ ./spark-submit --class org.testproject.spark.App 
                                 /users/macbook/apps/twitch-chat-1.0-SNAPSHOT.jar 
                                 irc.twitch.tv 6667
 
