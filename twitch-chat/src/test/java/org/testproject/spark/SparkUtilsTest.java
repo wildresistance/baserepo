@@ -5,22 +5,24 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.streaming.Durations;
-import org.apache.spark.streaming.Time;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.testproject.spark.util.SparkUtils;
 import scala.Tuple2;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.PriorityQueue;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.testproject.spark.util.SparkUtils.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 /**
  * Created by macbook on 06.03.16.
@@ -110,13 +112,13 @@ public class SparkUtilsTest implements Serializable {
             assertEquals(first, firstResult);
         });
         jsc.start();
+
     }
 
-@Before
+@After
     public void tearDown() {
     if (null != jsc)  {
         jsc.stop();
-        jsc.close();
     }
 }
 

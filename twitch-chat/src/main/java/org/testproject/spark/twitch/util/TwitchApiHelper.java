@@ -9,7 +9,9 @@ import java.net.URL;
 import java.util.List;
 
 /**
- *
+ * Helper class which interacts with Twitch public API
+ * and parses JSON incoming data
+ * @see org.testproject.spark.twitch.util.JacksonUtils
  * Created by akurilyonok
  */
 public class TwitchApiHelper {
@@ -22,6 +24,7 @@ public class TwitchApiHelper {
     public static final String P_REGEX = "regex";
     public static final String P_STREAM_CHANNEL = "channel";
     public static final String P_CHANNEL_NAME = "name";
+    public static final String HTTP_GET_METHOD = "GET";
 
     public static String buildRequestUrl(String rootUrl, String requestUrl) {
         return String.format(URL_PATTERN, rootUrl, requestUrl);
@@ -35,7 +38,7 @@ public class TwitchApiHelper {
     public static List<String> getEmoticonList() throws IOException{
         URL emoticonUrl = new URL(buildRequestUrl(TWITCH_API_URL,TWITCH_API_EMOTICON_LIST_URI));
         HttpURLConnection connection = (HttpURLConnection)emoticonUrl.openConnection();
-        connection.setRequestMethod("GET");
+        connection.setRequestMethod(HTTP_GET_METHOD);
         connection.setDoOutput(true);
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));
@@ -59,7 +62,7 @@ public class TwitchApiHelper {
     public static List<String> getChannelsByTopTenStreams() throws IOException{
         URL emoticonUrl = new URL(buildRequestUrl(TWITCH_API_URL,TWITCH_STREAM_TOP_CHANNELS));
         HttpURLConnection connection = (HttpURLConnection)emoticonUrl.openConnection();
-        connection.setRequestMethod("GET");
+        connection.setRequestMethod(HTTP_GET_METHOD);
         connection.setDoOutput(true);
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));
@@ -76,7 +79,7 @@ public class TwitchApiHelper {
     /**
      * Extracts username from the chat message
      * @param chatMessage - a single chat message received from Twitch
-     * @return
+     * @return username
      */
     public static  String extractUser(String chatMessage) {
         return chatMessage.substring(chatMessage.indexOf(":") + 1, chatMessage.indexOf("!"));

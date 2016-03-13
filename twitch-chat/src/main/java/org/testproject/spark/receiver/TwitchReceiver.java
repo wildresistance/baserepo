@@ -11,14 +11,29 @@ import java.net.Socket;
 import java.util.List;
 
 /**
+ * Custom receiver to interact with Twitch end receive real-time data
+ * implements {@link org.apache.spark.streaming.receiver.Receiver}
  * Created by akurilyonok
  */
 public class TwitchReceiver  extends Receiver<String>{
-    private static final String ANONYMOUS_USER = "justinfan12340905";
     private static final Logger logger = Logger.getLogger(TwitchReceiver.class);
 
+    /**
+     * anonymous twitch users have pattern justinfan{number}
+     */
+    private static final String ANONYMOUS_USER = "justinfan12340905";
+
+    /**
+     * Twitch host to connect
+     */
     private final String host;
+    /**
+     * Twitch port to connect
+     */
     private final int port;
+    /**
+     * List of Twitch channels to connect
+     */
     private final List<String> channels;
 
     public TwitchReceiver(String host, int port, List<String> channels) {
@@ -57,9 +72,10 @@ public class TwitchReceiver  extends Receiver<String>{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-
+                //login with anonymous user
                 writer.write(String.format("NICK %s\r\n", ANONYMOUS_USER));
                 for (String channel: channels) {
+                    //connect to twitch chat
                     writer.write(String.format("JOIN #%s \r\n", channel));
                     writer.flush();
                 }

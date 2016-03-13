@@ -1,10 +1,7 @@
 package org.testproject.spark.twitch.util;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.NullNode;
 
 import java.io.IOException;
@@ -13,54 +10,55 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by akurilyonok on 6/13/2014.
+ * Created by akurilyonok
  */
 public class JacksonUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static List<String> asList(String json, String nodeName, String keyName) {
+    /**
+     * Parses json and finds all the particular values from the list of entities
+     * @param json - raw json
+     * @param arrayNodeName - the name of subnode
+     * @param propertyName - name of the property to retrieve
+     * @return list of property values
+     */
+    public static List<String> asList(String json, String arrayNodeName, String propertyName) {
         try {
             JsonNode tree = objectMapper.readTree(json);
-            JsonNode arrayNode = tree.get(nodeName);
-            List<String> result = new ArrayList<String>();
+            JsonNode arrayNode = tree.get(arrayNodeName);
+            List<String> result = new ArrayList<>();
             if (!arrayNode.isArray()) {
                 throw new IllegalStateException("Your property is not of array type. Use another method instead.");
             }
-            for (JsonNode node: arrayNode) {
-                result.add(node.get(keyName).asText());
-            }
+            arrayNode.forEach((node)->result.add(node.get(propertyName).asText()));
             return result;
         } catch (IOException ex) {
             return Collections.emptyList();
         }
     }
 
-    public static List<String> asList(String json, String nodeName, String keyName, String innerKeyName) {
+    /**
+     * Parses json and finds all the particular values of sub-entities from the list of entities
+     * @param json - raw json
+     * @param arrayNodeName - the name of array node
+     * @param subNode - the name of sub-node
+     * @param propertyName - name of the property to retrieve
+     * @return list of property values
+     */
+    public static List<String> asList(String json, String arrayNodeName, String subNode, String propertyName) {
         try {
             JsonNode tree = objectMapper.readTree(json);
-            JsonNode arrayNode = tree.get(nodeName);
-            List<String> result = new ArrayList<String>();
+            JsonNode arrayNode = tree.get(arrayNodeName);
+            List<String> result = new ArrayList<>();
             if (!arrayNode.isArray()) {
                 throw new IllegalStateException("Your property is not of array type. Use another method instead.");
             }
-            for (JsonNode node: arrayNode) {
-                result.add(node.get(keyName).get(innerKeyName).asText());
-            }
+            arrayNode.forEach((node) -> result.add(node.get(subNode).get(propertyName).asText()));
             return result;
         } catch (IOException ex) {
             return Collections.emptyList();
         }
     }
 
-
-
-    public JsonNode asChildNode(String json, String keyName) {
-        try {
-            JsonNode tree = objectMapper.readTree(json);
-            return tree.findValue(keyName);
-        } catch (IOException ex) {
-            return NullNode.getInstance();
-        }
-    }
 }
