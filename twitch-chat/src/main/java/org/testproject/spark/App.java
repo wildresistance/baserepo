@@ -10,6 +10,9 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.testproject.spark.receiver.TwitchReceiver;
 import scala.Tuple2;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,15 +50,15 @@ public class App {
 
         JavaPairDStream<Long, String> topEmoticons= calculateFunctionalState(preparedStatistics, mappingSumFunction, initial);
 
-        printResult(topEmoticons, TOP_COUNT, "\n Top10 emoticons");
+        printResult(topEmoticons, TOP_COUNT, "\nTop10 emoticons");
 
         JavaPairDStream<Long, String> top10RisingEmoticons = calculateFunctionalState(preparedStatistics, mappingDiffFunction, initial);
-        printResult(top10RisingEmoticons, TOP_COUNT, "\n Top10 rising emoticons");
+        printResult(top10RisingEmoticons, TOP_COUNT, "\nTop10 rising emoticons");
 
         topChannelLists.stream().forEach((channel) -> {
             JavaPairDStream<String, Long> preparedUserStatistics = prepareUserStatistics(channel, wLines);
             JavaPairDStream<Long, String> state = calculateFunctionalState(preparedUserStatistics, mappingSumFunction, initial);
-            printResult(state, TOP_COUNT, String.format("\n Top 10 users for channel %s", channel));
+            printResult(state, TOP_COUNT, String.format("\nTop 10 users for channel %s", channel));
         });
 
         jsc.start();
@@ -65,8 +68,8 @@ public class App {
 
     private static void printResult(JavaPairDStream<Long, String> stream, int topCount, String headerMessage) {
         stream.foreachRDD((streamRdd, time)->{
-            System.out.println(new Date(time.milliseconds()));
             System.out.println(headerMessage);
+            System.out.println(LocalDateTime.ofInstant(Instant.ofEpochMilli(time.milliseconds()), ZoneId.systemDefault()));
             streamRdd.take(topCount).stream().forEach((pair)-> System.out.println(String.format("%s (%s occurences)", pair._2(), pair._1())));
         });
     }
